@@ -1,8 +1,14 @@
 package main
 
 import (
-	"github.com/robfig/cron/v3"
-	"go-notification/db"
+	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/cors"
+	"github.com/gofiber/websocket/v2"
+	"go-notification/config"
+	"go-notification/models"
+	"go-notification/routes"
+	"go-notification/worker"
+	"go-notification/ws"
 	"log"
 )
 
@@ -10,11 +16,17 @@ import (
 // the <icon src="AllIcons.Actions.Execute"/> icon in the gutter and select the <b>Run</b> menu item from here.</p>
 
 func main() {
-	log.Println("Starting notification...")
-	db.Init()
+	config.ConnectDB()
+	config.DB.AutoMigrate(&models.Notification{})
 
-	c := cron.New()
-	c.Start()
+	app := fiber.New()
+	app.Use(cors.New())
 
-	log.Println("Starting cron...")
+	routes.RegisterNotificationRoutes(app)
+	app.Get("/ws", websocket.New(ws.HandleWebSocket))
+
+	worker.StartScheduler()
+	ws.StartBroadcaster()
+
+	log.Fatal(app.Listen(":7000"))
 }
