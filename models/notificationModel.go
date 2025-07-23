@@ -13,3 +13,7 @@ type Notification struct {
 	Sent_At     time.Time `json:"sent___at"`
 	Sent        bool      `json:"sent,omitempty"`
 }
+
+func (Notification) TableName() string {
+	return "Notification" // <-- This fixes the issue
+}

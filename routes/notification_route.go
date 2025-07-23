@@ -6,7 +6,7 @@ import (
 )
 
 func RegisterNotificationRoutes(app *fiber.App) {
-	api := app.Group("/notification")
+	api := app.Group("/api/notifications")
 
 	api.Get("/", handlers.GetNotifications)
 	api.Get("/:id", handlers.GetNotificationByID)
