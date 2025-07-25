@@ -22,7 +22,7 @@ func StartScheduler() {
 			}
 			for _, n := range due {
 				services.SendNotification(n)
-				ws.PushNotificationClients(n)
+				ws.PushNotificationClients(n.User_Id, n)
 				n.Sent_At = now
 				n.Sent = true
 				config.DB.Save(&n)

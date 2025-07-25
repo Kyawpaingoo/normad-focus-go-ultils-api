@@ -21,10 +21,10 @@ func GetNotificationByID(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid id"})
 	}
 
-	var n models.Notification
-	if err := config.DB.First(&n, id).Error; err != nil {
+	var notifications []models.Notification
+	if err := config.DB.Where("user_id = ? AND sent = ?", id, false).Find(&notifications).Error; err != nil {
 		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{"error": "Not found"})
 	}
 
-	return c.JSON(n)
+	return c.JSON(notifications)
 }

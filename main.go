@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
+	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/gofiber/websocket/v2"
 	"go-notification/config"
 	"go-notification/models"
@@ -20,9 +21,16 @@ func main() {
 	config.DB.AutoMigrate(&models.Notification{})
 
 	app := fiber.New()
+	app.Use(logger.New())
 	app.Use(cors.New())
 
 	routes.RegisterNotificationRoutes(app)
+	app.Use("/ws", func(c *fiber.Ctx) error {
+		if websocket.IsWebSocketUpgrade(c) {
+			return c.Next()
+		}
+		return fiber.ErrUpgradeRequired
+	})
 	app.Get("/ws", websocket.New(ws.HandleWebSocket))
 
 	worker.StartScheduler()
